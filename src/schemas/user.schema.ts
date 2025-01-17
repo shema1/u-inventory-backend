@@ -10,7 +10,7 @@ export class User {
   @Prop()
   lastName: string;
   @Prop()
-  email: number;
+  email: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

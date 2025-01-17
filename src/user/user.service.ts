@@ -10,4 +10,24 @@ export class UserService {
   async getAll(): Promise<User[]> {
     return this.userModel.find().exec();
   }
+
+  async getUserById(id: string): Promise<User> {
+    return this.userModel.findById(id).exec();
+  }
+
+  async createUser(createUserDto: Partial<User>): Promise<User> {
+    const newUser = new this.userModel(createUserDto);
+    return newUser.save();
+  }
+
+  async updateUser(id: string, updateUserDto: Partial<User>): Promise<User> {
+    return this.userModel
+      .findByIdAndUpdate(id, updateUserDto, { new: true })
+      .exec();
+  }
+
+  // Видалити користувача
+  async deleteUser(id: string): Promise<User> {
+    return this.userModel.findByIdAndDelete(id).exec();
+  }
 }
