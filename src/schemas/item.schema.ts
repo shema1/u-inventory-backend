@@ -12,11 +12,13 @@ export class ItemMetrics {
   arrived: number;
 
   @Prop({ required: true })
-  Departed: number;
+  departed: number;
 
   @Prop({ required: true })
   commonValueEndPeriod: number;
 }
+
+export const ItemMetricsSchema = SchemaFactory.createForClass(ItemMetrics);
 
 @Schema()
 export class Item {
@@ -31,12 +33,15 @@ export class Item {
   ownerName: string;
 
   // Властивості вартості
+  @Prop({ type: ItemMetricsSchema })
   cost: ItemMetrics;
 
   // Властивості амортизації
+  @Prop({ type: ItemMetricsSchema })
   depreciation: ItemMetrics;
 
   // Кількість товару
+  @Prop({ type: ItemMetricsSchema })
   quantity: ItemMetrics;
 }
 
