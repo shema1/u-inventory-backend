@@ -3,11 +3,19 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from 'src/schemas/user.schema';
+import {
+  MicorsoftUser,
+  MicorsoftUserSchema,
+} from 'src/schemas/micorsoftUser.schema';
+
 import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: MicorsoftUser.name, schema: MicorsoftUserSchema },
+    ]),
     PassportModule.register({
       defaultStrategy: 'AzureAD',
     }),

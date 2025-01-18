@@ -40,6 +40,12 @@ export class UserController {
     return existingUser;
   }
 
+  @Get('checkUser')
+  login(@Req() req: any): Promise<any> {
+    const user = req.user;
+    return this.userService.checkUser(user);
+  }
+
   @Get()
   getAll(): Promise<User[]> {
     return this.userService.getAll();
