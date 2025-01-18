@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
 
 export type ItemDocument = HydratedDocument<Item>;
 
@@ -22,6 +22,9 @@ export const ItemMetricsSchema = SchemaFactory.createForClass(ItemMetrics);
 
 @Schema()
 export class Item {
+  @Prop({ type: SchemaTypes.ObjectId, default: () => new Types.ObjectId() })
+  id: Types.ObjectId;
+
   @Prop()
   itemId: string;
 
