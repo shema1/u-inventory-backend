@@ -8,34 +8,37 @@ import {
   Param,
   Post,
   Put,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from 'src/schemas/user.schema';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('AzureAD'))
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  // @Get('me')
-  // @UseGuards(AuthGuard('AzureAD')) // Використання стратегії 'AzureAD'
-  // async getCurrentUser(@Req() req: Request): Promise<User> {
-  //     // payload отримується через стратегію
-  //     const userPayload = req.user;
+  @Get('me')
+  async getCurrentUser(@Req() req: any): Promise<any> {
+    const email = req.user.email;
 
-  //     if (!userPayload) {
-  //         throw new HttpException('User not authenticated', HttpStatus.UNAUTHORIZED);
-  //     }
+    if (!email) {
+      throw new HttpException(
+        'User not authenticated',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
 
-  //     // Отримання userId із payload (можливо, це буде `sub` або інший унікальний ідентифікатор)
-  //     const userId = userPayload.sub;
+    const existingUser = await this.userService.getUserByEmail(email);
 
-  //     const user = await this.userService.getUserById(userId);
-  //     if (!user) {
-  //         throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-  //     }
+    if (!existingUser) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
 
-  //     return user;
-  // }
+    return existingUser;
+  }
 
   @Get()
   getAll(): Promise<User[]> {
