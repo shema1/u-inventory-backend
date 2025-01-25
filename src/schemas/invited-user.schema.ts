@@ -17,6 +17,17 @@ export class InvitedUser {
   lastName: string;
   @Prop()
   status: InvitedUserStatus;
+  @Prop({ type: Date, default: Date.now }) // Додавання поля часу створення
+  createdAt: Date;
 }
 
 export const InvitedUserSchema = SchemaFactory.createForClass(InvitedUser);
+
+InvitedUserSchema.set('toJSON', {
+  virtuals: true,
+  transform: (doc, ret) => {
+    ret.id = ret._id; // Клонування _id в id
+    delete ret._id; // Видалення _id
+    delete ret.__v; // Видалення __v
+  },
+});
