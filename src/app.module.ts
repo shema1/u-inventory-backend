@@ -6,6 +6,7 @@ import { UserModule } from './user/user.module';
 import { AzureADStrategy } from './strategy/azuread.strategy';
 import { ConfigModule } from '@nestjs/config';
 import { ItemModule } from './item/item.module';
+import { InvitedUsersModule } from './invited-users/invited-users.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ItemModule } from './item/item.module';
       isGlobal: true,
     }),
     ItemModule,
+    InvitedUsersModule,
   ],
   controllers: [AppController],
   providers: [AppService, AzureADStrategy],
