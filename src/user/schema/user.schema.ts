@@ -24,6 +24,8 @@ export class User {
   createdAt: Date;
   @Prop({ type: Date, default: null })
   invitedAt: Date | null;
+  @Prop({ type: SchemaTypes.ObjectId, ref: 'Role' })
+  roleId: Types.ObjectId;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
