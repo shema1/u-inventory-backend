@@ -1,19 +1,17 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from 'src/user/schema/user.schema';
 import { InviteUserDto } from './dto/invite-user.dto';
 import { RolesService } from '../roles/roles.service';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private rolesService: RolesService,
+    private mailService: MailService,
   ) {}
 
   async getAll(): Promise<User[]> {
@@ -37,16 +35,35 @@ export class UserService {
     return newUser.save();
   }
 
+  private generateInvitationCode(): string {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  }
+
   async inviteUser(inviteUserDto: InviteUserDto): Promise<User> {
     // Verify that role exists
     await this.rolesService.findById(inviteUserDto.roleId);
 
-    return this.createUser({
+    const invitationCode = this.generateInvitationCode();
+    const invitationCodeExpiresAt = new Date();
+    invitationCodeExpiresAt.setHours(invitationCodeExpiresAt.getHours() + 24); // Code expires in 24 hours
+
+    const user = await this.createUser({
       ...inviteUserDto,
-      role: inviteUserDto.roleId,
+      role: inviteUserDto.roleId as any, // Type assertion to avoid type error
       status: 'invited',
       invitedAt: new Date(),
+      invitationCode,
+      invitationCodeExpiresAt,
     });
+
+    // Send invitation code via email
+    await this.mailService.sendInvitationCode(
+      user.email,
+      invitationCode,
+      user.firstName,
+    );
+
+    return user;
   }
 
   async updateUser(id: string, updateUserDto: Partial<User>): Promise<User> {

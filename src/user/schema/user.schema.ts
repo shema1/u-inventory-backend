@@ -27,6 +27,10 @@ export class User {
   createdAt: Date;
   @Prop({ type: Date, default: null })
   invitedAt: Date | null;
+  @Prop({ select: false })
+  invitationCode: string;
+  @Prop({ type: Date })
+  invitationCodeExpiresAt: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
