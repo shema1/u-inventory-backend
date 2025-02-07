@@ -5,7 +5,6 @@ import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { ItemModule } from './item/item.module';
-import { InvitedUsersModule } from './invited-users/invited-users.module';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
@@ -18,7 +17,6 @@ import { AuthModule } from './auth/auth.module';
       isGlobal: true,
     }),
     ItemModule,
-    InvitedUsersModule,
     AuthModule,
   ],
   controllers: [AppController],

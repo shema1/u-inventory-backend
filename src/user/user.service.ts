@@ -1,8 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { MicorsoftUserDto } from 'src/dto/user/micorsof-user.dto';
-import { User, UserDocument } from 'src/schemas/user.schema';
+import { User, UserDocument } from 'src/user/schema/user.schema';
 
 @Injectable()
 export class UserService {
@@ -18,20 +17,6 @@ export class UserService {
 
   async getUserByEmail(email: string): Promise<User | null> {
     return this.userModel.findOne({ email }).exec();
-  }
-
-  async checkUser(user: MicorsoftUserDto): Promise<User | null> {
-    const userExist = await this.getUserByEmail(user.email);
-    if (userExist && userExist.status === 'active') {
-      return userExist;
-    } else {
-      return await this.createUser({
-        email: user.email,
-        firstName: user.given_name,
-        lastName: user.family_name,
-        // status: 'active',
-      });
-    }
   }
 
   async getUserById(id: string): Promise<User> {

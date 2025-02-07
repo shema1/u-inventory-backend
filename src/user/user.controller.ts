@@ -13,17 +13,46 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { User } from 'src/schemas/user.schema';
+import { User } from 'src/user/schema/user.schema';
 import { AuthGuard } from '@nestjs/passport';
-import { InviteUserDto } from 'src/dto/user/invite-user.dto';
+import { InviteUserDto } from 'src/user/dto/invite-user.dto';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiParam,
+  ApiQuery,
+  ApiBody,
+} from '@nestjs/swagger';
+import { Request } from 'express';
+import { UserIdParam } from './dto/user-id.param.dto';
+import { UserResponseDto } from './dto/user.response.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 
-// @UseGuards(AuthGuard('AzureAD'))
+// Add interface to extend Express Request
+interface RequestWithUser extends Request {
+  user: {
+    email: string;
+  };
+}
+
+@UseGuards(AuthGuard())
+@ApiBearerAuth()
+@ApiTags('Users')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get('me')
-  async getCurrentUser(@Req() req: any): Promise<any> {
+  @ApiOperation({ summary: 'Get current user profile' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns current user data',
+    type: UserResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'User not authenticated' })
+  async getCurrentUser(@Req() req: RequestWithUser): Promise<User> {
     const email = req.user.email;
 
     if (!email) {
@@ -42,19 +71,31 @@ export class UserController {
     return existingUser;
   }
 
-  @Get('checkUser')
-  login(@Req() req: any): Promise<any> {
-    const user = req.user;
-    return this.userService.checkUser({ ...user });
-  }
-
-  @UseGuards(AuthGuard())
   @Get()
+  @ApiOperation({ summary: 'Get all users' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns all users',
+    type: [UserResponseDto], // Array of users
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   getAll(): Promise<User[]> {
     return this.userService.getAll();
   }
 
   @Get('/byStatus')
+  @ApiOperation({ summary: 'Get users by status' })
+  @ApiQuery({
+    name: 'status',
+    enum: ['active', 'invited', 'pending', 'banned'],
+    required: true,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns users with specified status',
+    type: [UserResponseDto],
+  })
+  @ApiResponse({ status: 400, description: 'Status is required' })
   async getbyStatus(@Query('status') status: string): Promise<User[]> {
     if (!status) {
       throw new HttpException('Status is required', HttpStatus.BAD_REQUEST);
@@ -65,8 +106,12 @@ export class UserController {
   }
 
   @Get(':id')
-  async getUserById(@Param('id') id: string): Promise<User> {
-    const user = await this.userService.getUserById(id);
+  @ApiOperation({ summary: 'Get user by ID' })
+  @ApiParam({ name: 'id', description: 'User ID' })
+  @ApiResponse({ status: 200, description: 'Returns user data' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  async getUserById(@Param() params: UserIdParam): Promise<User> {
+    const user = await this.userService.getUserById(params.id);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
@@ -74,28 +119,48 @@ export class UserController {
   }
 
   @Post()
+  @ApiOperation({ summary: 'Create new user' })
+  @ApiBody({ type: CreateUserDto })
+  @ApiResponse({
+    status: 201,
+    description: 'User created successfully',
+    type: UserResponseDto,
+  })
   async createUser(@Body() createUserDto: Partial<User>): Promise<User> {
-    console.log('createUserDto', createUserDto);
     return this.userService.createUser(createUserDto);
   }
 
   @Post('/invite')
+  @ApiOperation({ summary: 'Invite new user' })
+  @ApiBody({ type: InviteUserDto })
+  @ApiResponse({
+    status: 201,
+    description: 'User invited successfully',
+    type: UserResponseDto,
+  })
+  @ApiResponse({ status: 409, description: 'User already invited' })
   async inviteUser(@Body() inviteUserDto: InviteUserDto): Promise<User> {
     const existingUser = await this.userService.getUserByEmail(
       inviteUserDto.email,
     );
 
     if (existingUser) {
-      throw new HttpException(
-        'Користувач вже запрошений.',
-        HttpStatus.CONFLICT,
-      );
+      throw new HttpException('User is already invited', HttpStatus.CONFLICT);
     }
 
     return this.userService.createUser({ ...inviteUserDto, status: 'invited' });
   }
 
   @Put(':id')
+  @ApiOperation({ summary: 'Update user' })
+  @ApiParam({ name: 'id', description: 'User ID' })
+  @ApiBody({ type: CreateUserDto })
+  @ApiResponse({
+    status: 200,
+    description: 'User updated successfully',
+    type: UserResponseDto,
+  })
+  @ApiResponse({ status: 404, description: 'User not found' })
   async updateUser(
     @Param('id') id: string,
     @Body() updateUserDto: Partial<User>,
@@ -108,6 +173,13 @@ export class UserController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete user' })
+  @ApiParam({ name: 'id', description: 'User ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'User deleted successfully',
+  })
+  @ApiResponse({ status: 404, description: 'User not found' })
   async deleteUser(@Param('id') id: string): Promise<void> {
     return this.userService.deleteUser(id);
   }
