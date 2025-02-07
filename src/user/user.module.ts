@@ -9,6 +9,7 @@ import {
 } from 'src/schemas/micorsoftUser.schema';
 
 import { PassportModule } from '@nestjs/passport';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
@@ -16,9 +17,10 @@ import { PassportModule } from '@nestjs/passport';
       { name: User.name, schema: UserSchema },
       { name: MicorsoftUser.name, schema: MicorsoftUserSchema },
     ]),
-    PassportModule.register({
-      defaultStrategy: 'AzureAD',
-    }),
+    AuthModule,
+    // PassportModule.register({
+    //   defaultStrategy: 'AzureAD',
+    // }),
   ],
   controllers: [UserController],
   providers: [UserService],

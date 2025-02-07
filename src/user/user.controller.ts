@@ -17,7 +17,7 @@ import { User } from 'src/schemas/user.schema';
 import { AuthGuard } from '@nestjs/passport';
 import { InviteUserDto } from 'src/dto/user/invite-user.dto';
 
-@UseGuards(AuthGuard('AzureAD'))
+// @UseGuards(AuthGuard('AzureAD'))
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -48,6 +48,7 @@ export class UserController {
     return this.userService.checkUser({ ...user });
   }
 
+  @UseGuards(AuthGuard())
   @Get()
   getAll(): Promise<User[]> {
     return this.userService.getAll();

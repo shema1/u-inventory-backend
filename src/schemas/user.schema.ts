@@ -13,6 +13,8 @@ export class User {
   lastName: string;
   @Prop()
   email: string;
+  @Prop({ required: true, select: false })
+  password: string;
   @Prop({
     enum: ['active', 'invited', 'pending', 'banned'],
     default: 'invited',
