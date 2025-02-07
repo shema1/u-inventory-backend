@@ -16,7 +16,9 @@ export class AuthController {
     description: 'User successfully registered',
   })
   @ApiResponse({ status: 400, description: 'Invalid data' })
-  signUp(@Body() signUpDto: SignUpDto): Promise<{ token: string }> {
+  signUp(
+    @Body() signUpDto: SignUpDto,
+  ): Promise<{ token: string; userInfo: any }> {
     return this.authService.signUp(signUpDto);
   }
 
@@ -24,9 +26,7 @@ export class AuthController {
   @ApiOperation({ summary: 'User login' })
   @ApiResponse({ status: 200, description: 'Successfully logged in' })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
-  login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
-    console.log('loginDto1', loginDto);
-
+  login(@Body() loginDto: LoginDto): Promise<{ token: string; userInfo: any }> {
     return this.authService.login(loginDto);
   }
 }
