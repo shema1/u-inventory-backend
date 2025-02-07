@@ -25,15 +25,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: any) {
     this.logger.debug('JWT Payload:', payload);
-    this.logger.debug('Token received and validated');
-    const { id } = payload;
 
-    const user = await this.userModel.findById(id);
+    const { id, email } = payload;
+    const user = await this.userModel.findOne({ email }).exec();
 
     if (!user) {
-      throw new UnauthorizedException('Login first to access this endpoint.');
+      this.logger.error(`User not found for email: ${email}`);
+      throw new UnauthorizedException('User not found');
     }
 
+    this.logger.debug('User found:', user);
     return user;
   }
 }

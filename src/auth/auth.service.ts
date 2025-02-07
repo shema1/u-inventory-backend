@@ -40,7 +40,11 @@ export class AuthService {
       invitedAt: user.invitedAt,
     };
 
-    const token = this.jwtService.sign(userData);
+    const payload = {
+      id: user.id,
+      email: user.email,
+    };
+    const token = this.jwtService.sign(payload);
 
     return { token, userInfo: userData };
   }
@@ -68,7 +72,11 @@ export class AuthService {
       createdAt: user.createdAt,
       invitedAt: user.invitedAt,
     };
-    const token = this.jwtService.sign(userData);
+    const payload = {
+      id: user.id,
+      email: user.email,
+    };
+    const token = this.jwtService.sign(payload);
 
     return { token, userInfo: userData };
   }

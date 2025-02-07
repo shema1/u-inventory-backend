@@ -5,6 +5,10 @@ export enum Permission {
   DELETE_USER = 'delete:user',
   INVITE_USER = 'invite:user',
 
+  READ_INVITED_USER = 'read:invited-user',
+  UPDATE_INVITED_USER = 'update:invited-user',
+  DELETE_INVITED_USER = 'delete:invited-user',
+
   // Role permissions
   CREATE_ROLE = 'create:role',
   READ_ROLE = 'read:role',
