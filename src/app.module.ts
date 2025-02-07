@@ -26,3 +26,10 @@ import { AuthModule } from './auth/auth.module';
   ],
 })
 export class AppModule {}
+
+// export class AppModule implements NestModule {
+//   //for logging
+//   configure(consumer: MiddlewareConsumer) {
+//     consumer.apply(LoggerMiddleware).forRoutes('*');
+//   }
+// }
