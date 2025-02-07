@@ -139,6 +139,7 @@ export class UserController {
     type: UserResponseDto,
   })
   @ApiResponse({ status: 409, description: 'User already invited' })
+  @ApiResponse({ status: 404, description: 'Role not found' })
   async inviteUser(@Body() inviteUserDto: InviteUserDto): Promise<User> {
     const existingUser = await this.userService.getUserByEmail(
       inviteUserDto.email,
@@ -148,7 +149,7 @@ export class UserController {
       throw new HttpException('User is already invited', HttpStatus.CONFLICT);
     }
 
-    return this.userService.createUser({ ...inviteUserDto, status: 'invited' });
+    return this.userService.inviteUser(inviteUserDto);
   }
 
   @Put(':id')

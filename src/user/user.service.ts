@@ -1,26 +1,35 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from 'src/user/schema/user.schema';
+import { InviteUserDto } from './dto/invite-user.dto';
+import { RolesService } from '../roles/roles.service';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private rolesService: RolesService,
+  ) {}
 
   async getAll(): Promise<User[]> {
-    return this.userModel.find().exec();
+    return this.userModel.find().populate('role').exec();
   }
 
   async getUsersByStatus(status: string): Promise<User[]> {
-    return this.userModel.find({ status }).exec();
+    return this.userModel.find({ status }).populate('role').exec();
   }
 
   async getUserByEmail(email: string): Promise<User | null> {
-    return this.userModel.findOne({ email }).exec();
+    return this.userModel.findOne({ email }).populate('role').exec();
   }
 
   async getUserById(id: string): Promise<User> {
-    return this.userModel.findById(id).exec();
+    return this.userModel.findById(id).populate('role').exec();
   }
 
   async createUser(createUserDto: Partial<User>): Promise<User> {
@@ -28,14 +37,27 @@ export class UserService {
     return newUser.save();
   }
 
-  // async inviteUser(createUserDto: Partial<User>): Promise<User> {
-  //   const newUser = await this.createUser();
-  //   return newUser.save();
-  // }
+  async inviteUser(inviteUserDto: InviteUserDto): Promise<User> {
+    // Verify that role exists
+    await this.rolesService.findById(inviteUserDto.roleId);
+
+    return this.createUser({
+      ...inviteUserDto,
+      role: inviteUserDto.roleId,
+      status: 'invited',
+      invitedAt: new Date(),
+    });
+  }
 
   async updateUser(id: string, updateUserDto: Partial<User>): Promise<User> {
+    if (updateUserDto.role) {
+      // Verify that new role exists
+      await this.rolesService.findById(updateUserDto.role.toString());
+    }
+
     return this.userModel
       .findByIdAndUpdate(id, updateUserDto, { new: true })
+      .populate('role')
       .exec();
   }
 

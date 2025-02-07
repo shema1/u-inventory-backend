@@ -5,6 +5,7 @@ import {
   IsNotEmpty,
   MinLength,
   MaxLength,
+  IsMongoId,
 } from 'class-validator';
 
 export class InviteUserDto {
@@ -36,4 +37,12 @@ export class InviteUserDto {
   @MinLength(2)
   @MaxLength(50)
   lastName: string;
+
+  @ApiProperty({
+    example: '507f1f77bcf86cd799439011',
+    description: 'Role ID for the invited user',
+  })
+  @IsNotEmpty()
+  @IsMongoId()
+  roleId: string;
 }

@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
+import { Role } from '../../roles/schema/role.schema';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -20,12 +21,12 @@ export class User {
     default: 'invited',
   })
   status: 'active' | 'invited' | 'pending' | 'banned';
+  @Prop({ type: SchemaTypes.ObjectId, ref: Role.name, required: true })
+  role: Role;
   @Prop({ type: Date, default: null })
   createdAt: Date;
   @Prop({ type: Date, default: null })
   invitedAt: Date | null;
-  @Prop({ type: SchemaTypes.ObjectId, ref: 'Role' })
-  roleId: Types.ObjectId;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
@@ -33,8 +34,8 @@ export const UserSchema = SchemaFactory.createForClass(User);
 UserSchema.set('toJSON', {
   virtuals: true,
   transform: (doc, ret) => {
-    ret.id = ret._id; // Клонування _id в id
-    delete ret._id; // Видалення _id
-    delete ret.__v; // Видалення __v
+    ret.id = ret._id;
+    delete ret._id;
+    delete ret.__v;
   },
 });
