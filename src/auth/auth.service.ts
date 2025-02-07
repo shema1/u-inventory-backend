@@ -44,21 +44,14 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto): Promise<{ token: string }> {
-    console.log('loginDto', loginDto);
     const { email, password } = loginDto;
 
-    console.log(
-      "ConfigService.get<string>('JWT_SECRET'),",
-      this.configService.get<string>('JWT_EXPIRES'),
-    );
     const user = await this.userModel.findOne({ email }).select('+password');
-    console.log('1', user);
     if (!user) {
       throw new UnauthorizedException('Invalid email or password');
     }
 
     const isPasswordMatched = await bcrypt.compare(password, user.password);
-    console.log('2');
 
     if (!isPasswordMatched) {
       throw new UnauthorizedException('Invalid email or password');
