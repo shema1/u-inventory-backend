@@ -14,7 +14,12 @@ export class User {
   lastName: string;
   @Prop()
   email: string;
-  @Prop({ required: true, select: false })
+  @Prop({
+    required: function () {
+      return this.status === 'active'; // password required only for active users
+    },
+    select: false,
+  })
   password: string;
   @Prop({
     enum: ['active', 'invited', 'pending', 'banned'],
