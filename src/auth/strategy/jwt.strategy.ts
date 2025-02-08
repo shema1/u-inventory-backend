@@ -29,12 +29,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const { email } = payload;
     const user = await this.userModel.findOne({ email }).exec();
 
-    if (!user) {
-      this.logger.error(`User not found for email: ${email}`);
-      throw new UnauthorizedException('User not found');
-    }
+    // if (!user) {
+    //   this.logger.error(`User not found for email: ${email}`);
+    //   throw new UnauthorizedException('User not found');
+    // }
 
-    this.logger.debug('User found:', user);
+    // this.logger.debug('User found:', user);
     return user;
   }
 }

@@ -26,7 +26,7 @@ export class AuthService {
 
     const existingUser = await this.userService.getUserByEmail(email);
     console.log('existingUser', existingUser);
-    if (existingUser) {
+    if (existingUser && existingUser.status === 'active') {
       throw new UnauthorizedException('User with this email already exists');
     }
 
@@ -38,6 +38,7 @@ export class AuthService {
       email,
       password: hashedPassword,
       status: existingUser?.status === 'invited' ? 'active' : 'pending',
+      role: existingUser?.role || null,
     });
 
     const userObject = user.toJSON();
@@ -84,13 +85,13 @@ export class AuthService {
     }
 
     let updatedUser = user;
-    console.log('updatedUser1', updatedUser);
+
     if (user.status === 'invited') {
       updatedUser = await this.userService.updateUser(user.id.toString(), {
         status: 'active',
       });
     }
-    console.log('updatedUser2', updatedUser);
+
     const userData = {
       id: updatedUser.id,
       email: updatedUser.email,

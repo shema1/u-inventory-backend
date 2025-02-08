@@ -87,7 +87,8 @@ export class UserService {
 
   // Видалити користувача
   async deleteUser(id: string): Promise<void> {
-    const result = await this.userModel.findOneAndDelete({ id }).exec();
+    const result = await this.userModel.findOneAndDelete({ _id: id }).exec();
+
     if (!result) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
