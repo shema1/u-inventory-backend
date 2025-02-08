@@ -4,14 +4,12 @@ import { Model } from 'mongoose';
 import { User, UserDocument } from 'src/user/schema/user.schema';
 import { InviteUserDto } from './dto/invite-user.dto';
 import { RolesService } from '../roles/roles.service';
-import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private rolesService: RolesService,
-    private mailService: MailService,
   ) {}
 
   async getAll(): Promise<User[]> {
@@ -27,7 +25,13 @@ export class UserService {
   }
 
   async getUserById(id: string): Promise<User> {
-    return this.userModel.findById(id).populate('role').exec();
+    const user = await this.userModel.findOne({ id }).populate('role').exec();
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    return user;
   }
 
   async createUser(createUserDto: Partial<User>): Promise<User> {
@@ -45,42 +49,40 @@ export class UserService {
 
     const invitationCode = this.generateInvitationCode();
     const invitationCodeExpiresAt = new Date();
-    invitationCodeExpiresAt.setHours(invitationCodeExpiresAt.getHours() + 24); // Code expires in 24 hours
+    invitationCodeExpiresAt.setHours(invitationCodeExpiresAt.getHours() + 24);
 
     const user = await this.createUser({
       ...inviteUserDto,
-      role: inviteUserDto.roleId as any, // Type assertion to avoid type error
+      role: inviteUserDto.roleId as any,
       status: 'invited',
       invitedAt: new Date(),
       invitationCode,
       invitationCodeExpiresAt,
     });
 
-    // Send invitation code via email
-    await this.mailService.sendInvitationCode(
-      user.email,
-      invitationCode,
-      user.firstName,
-    );
-
     return user;
   }
 
   async updateUser(id: string, updateUserDto: Partial<User>): Promise<User> {
     if (updateUserDto.role) {
-      // Verify that new role exists
       await this.rolesService.findById(updateUserDto.role.toString());
     }
 
-    return this.userModel
-      .findByIdAndUpdate(id, updateUserDto, { new: true })
+    const updatedUser = await this.userModel
+      .findOneAndUpdate({ id }, updateUserDto, { new: true })
       .populate('role')
       .exec();
+
+    if (!updatedUser) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    return updatedUser;
   }
 
   // Видалити користувача
   async deleteUser(id: string): Promise<void> {
-    const result = await this.userModel.findByIdAndDelete(id).exec();
+    const result = await this.userModel.findOneAndDelete({ id }).exec();
     if (!result) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }

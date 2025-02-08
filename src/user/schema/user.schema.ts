@@ -26,7 +26,12 @@ export class User {
     default: 'invited',
   })
   status: 'active' | 'invited' | 'pending' | 'banned';
-  @Prop({ type: SchemaTypes.ObjectId, ref: Role.name, required: true })
+  @Prop({
+    type: SchemaTypes.ObjectId,
+    ref: Role.name,
+    required: false,
+    default: null,
+  })
   role: Role;
   @Prop({ type: Date, default: null })
   createdAt: Date;

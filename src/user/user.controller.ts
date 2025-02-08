@@ -118,17 +118,17 @@ export class UserController {
     return user;
   }
 
-  @Post()
-  @ApiOperation({ summary: 'Create new user' })
-  @ApiBody({ type: CreateUserDto })
-  @ApiResponse({
-    status: 201,
-    description: 'User created successfully',
-    type: UserResponseDto,
-  })
-  async createUser(@Body() createUserDto: Partial<User>): Promise<User> {
-    return this.userService.createUser(createUserDto);
-  }
+  // @Post()
+  // @ApiOperation({ summary: 'Create new user' })
+  // @ApiBody({ type: CreateUserDto })
+  // @ApiResponse({
+  //   status: 201,
+  //   description: 'User created successfully',
+  //   type: UserResponseDto,
+  // })
+  // async createUser(@Body() createUserDto: Partial<User>): Promise<User> {
+  //   return this.userService.createUser(createUserDto);
+  // }
 
   @Post('/invite')
   @ApiOperation({ summary: 'Invite new user' })
