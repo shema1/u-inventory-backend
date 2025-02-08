@@ -8,11 +8,11 @@ export type UserDocument = HydratedDocument<User>;
 export class User {
   @Prop({ type: SchemaTypes.ObjectId, default: () => new Types.ObjectId() })
   id: Types.ObjectId;
-  @Prop()
+  @Prop({ required: false })
   firstName: string;
-  @Prop()
+  @Prop({ required: false })
   lastName: string;
-  @Prop()
+  @Prop({ required: true })
   email: string;
   @Prop({
     required: function () {

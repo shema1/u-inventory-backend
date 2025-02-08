@@ -12,7 +12,7 @@ export class Role {
   @Prop({ required: true, unique: true })
   name: string;
 
-  @Prop({ required: true })
+  @Prop({ required: false, default: '' })
   description: string;
 
   @Prop({ type: [String], enum: Permission, default: [] })

@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { User, UserDocument } from 'src/user/schema/user.schema';
 import { InviteUserDto } from './dto/invite-user.dto';
 import { RolesService } from '../roles/roles.service';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -63,13 +64,17 @@ export class UserService {
     return user;
   }
 
-  async updateUser(id: string, updateUserDto: Partial<User>): Promise<User> {
-    if (updateUserDto.role) {
-      await this.rolesService.findById(updateUserDto.role.toString());
+  async updateUser(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+    const updateData: Partial<User> = { ...updateUserDto };
+
+    // Якщо передано roleId, оновлюємо поле role
+    if (updateUserDto.roleId) {
+      await this.rolesService.findById(updateUserDto.roleId);
+      updateData.role = updateUserDto.roleId as any; // Видаляємо roleId з об'єкту оновлення
     }
 
     const updatedUser = await this.userModel
-      .findOneAndUpdate({ id }, updateUserDto, { new: true })
+      .findOneAndUpdate({ _id: id }, updateData, { new: true })
       .populate('role')
       .exec();
 

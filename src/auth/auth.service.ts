@@ -67,7 +67,7 @@ export class AuthService {
 
     const user = await this.userService.getUserByEmail(email);
     if (!user) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException('Invalid email or password ');
     }
 
     const userWithPassword = await this.userModel
@@ -76,11 +76,11 @@ export class AuthService {
 
     const isPasswordMatched = await bcrypt.compare(
       password,
-      userWithPassword.password,
+      userWithPassword.password || '',
     );
 
     if (!isPasswordMatched) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException('Invalid email or password 2');
     }
 
     let updatedUser = user;
