@@ -29,6 +29,7 @@ import { Request } from 'express';
 import { UserIdParam } from './dto/user-id.param.dto';
 import { UserResponseDto } from './dto/user.response.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import axios from 'axios';
 
 // Add interface to extend Express Request
 interface RequestWithUser extends Request {
@@ -183,5 +184,22 @@ export class UserController {
   @ApiResponse({ status: 404, description: 'User not found' })
   async deleteUser(@Param('id') id: string): Promise<void> {
     return this.userService.deleteUser(id);
+  }
+
+  @Get('fetch-html')
+  async fetchHtml(@Query('url') url: string): Promise<string> {
+    if (!url) {
+      throw new HttpException('URL is required', HttpStatus.BAD_REQUEST);
+    }
+
+    try {
+      const response = await axios.get(url);
+      return response.data; // Повертаємо HTML-код
+    } catch {
+      throw new HttpException(
+        'Failed to fetch HTML',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
