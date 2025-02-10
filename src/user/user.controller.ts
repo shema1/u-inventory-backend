@@ -187,6 +187,15 @@ export class UserController {
   }
 
   @Get('fetch-html')
+  @ApiOperation({ summary: 'Fetch HTML from a given URL' })
+  @ApiQuery({
+    name: 'url',
+    required: true,
+    description: 'The URL to fetch HTML from',
+  })
+  @ApiResponse({ status: 200, description: 'Returns HTML content' })
+  @ApiResponse({ status: 400, description: 'URL is required' })
+  @ApiResponse({ status: 500, description: 'Failed to fetch HTML' })
   async fetchHtml(@Query('url') url: string): Promise<string> {
     if (!url) {
       throw new HttpException('URL is required', HttpStatus.BAD_REQUEST);
